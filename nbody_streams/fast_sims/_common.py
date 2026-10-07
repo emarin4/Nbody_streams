@@ -400,6 +400,7 @@ def _create_perturber_potential(
         raise TypeError("time_impact must be a finite scalar (Gyr).")
 
     t_start = time_end - time_total  # simulation start time
+    #print(f"DEBUG: time_impact={time_impact}, t_window={t_window}, t_start={t_start}, time_end={time_end}", flush=True)
 
     # Always integrate the full orbit: rewind from impact to sim start, then forward.
     w_subhalo_init = agama.orbit(
@@ -451,7 +452,7 @@ def _create_perturber_potential(
                 [t_on + eps,   1.0, 1.0],
             ]
 
-        if t_off >= time_end:
+        if t_off + 2 * eps >= time_end: #Ella edited 8/15, from t_off --> (t_off * 2eps) 
             # Turn-off is at or beyond sim end — mass stays on until the end
             rows.append([time_end, 1.0, 1.0])
         else:
@@ -480,6 +481,10 @@ def _create_perturber_potential(
         center=traj_perturber,
         scale=scale_table,
     )
+
+    #print("DEBUG scale_table:\n", scale_table, flush=True)
+    #print("DEBUG scale_table time column diffs:\n", np.diff(scale_table[:, 0]), flush=True)
+    
 
     if trunc_nfw:
         return agama.Potential(type='spheroid',
